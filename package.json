@@ -1,0 +1,8 @@
+{
+  "name": "fda-maude-engineering-explorer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {"test": "node --test tests/*.test.js"},
+  "description": "A transparent, research-only engineering narrative exploration interface for FDA MAUDE"
+}

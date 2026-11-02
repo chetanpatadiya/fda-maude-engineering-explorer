@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10243b">
+  <meta name="description" content="Research-only FDA MAUDE narrative exploration with traceable engineering hypotheses.">
+  <title>MAUDE Engineering Intelligence Explorer · v0.1</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="src/app.js"></script>
+</head>
+<body>
+<header class="header">
+  <div class="shell header-flex">
+    <div class="brand"><span class="brand-mark">M</span><div><strong>MAUDE <span>Engineering Intelligence</span></strong><small>Open-source evidence-to-investigation prototype</small></div></div>
+    <div class="top-right"><span class="tag">v0.1 · Research prototype</span><a class="header-link" href="https://open.fda.gov/apis/device/event/" target="_blank" rel="noopener noreferrer">FDA data documentation ↗</a></div>
+  </div>
+</header>
+<main class="shell">
+  <section class="intro">
+    <div><p class="eyebrow">POSTMARKET ENGINEERING · OBSERVATION FIRST</p>
+    <h1>From adverse-event narratives<br>to <em>engineering questions.</em></h1>
+    <p class="intro-copy">Explore reported device events through a transparent packaging, labeling, and distribution lens. Flag possible failure pathways, inspect the actual words, and export an investigation brief.</p></div>
+    <div class="intro-side"><strong>Important boundary</strong><p>MAUDE reports are not verified root causes. Keyword matches are screening leads, not evidence of causation, incidence, or comparative safety.</p></div>
+  </section>
+  <div class="notice" id="sourceNotice" role="status"><span class="notice-dot"></span><div><strong>Synthetic demonstration loaded</strong><span> All eight example narratives are fictional. Select “Search live FDA” to access public openFDA records.</span></div></div>
+  <div class="workspace">
+    <aside class="filters panel">
+      <div class="panel-heading"><span>01 / Define evidence cohort</span></div>
+      <label class="field-title">Data source</label>
+      <div class="button-pair"><button id="demoBtn" class="choice selected" type="button">Synthetic demo</button><button id="liveBtn" class="choice" type="button">Search live FDA</button></div>
+      <div class="aside-divider"></div>
+      <form id="searchForm">
+        <div class="field"><label for="from">FDA date received — from</label><input id="from" type="date" value="2026-01-01" required></div>
+        <div class="field"><label for="to">Through</label><input id="to" type="date" value="2026-11-01" required></div>
+        <div class="field"><label for="productCode">FDA product code <span class="muted">optional</span></label><input id="productCode" maxlength="3" placeholder="Three-letter code" autocomplete="off"></div>
+        <div class="field"><label for="manufacturer">Manufacturer <span class="muted">optional</span></label><input id="manufacturer" maxlength="90" placeholder="Name in device record" autocomplete="off"></div>
+        <div class="field"><label for="keyword">Narrative phrase <span class="muted">optional</span></label><input id="keyword" maxlength="90" placeholder="e.g. pouch, sterile, label" autocomplete="off"></div>
+        <div class="field"><label for="eventType">Event classification</label><select id="eventType"><option value="">All reported event types</option><option>Malfunction</option><option>Injury</option><option>Death</option><option>Other</option></select></div>
+        <div class="field"><label for="limit">Maximum reports to inspect</label><select id="limit"><option value="50">50 most recent</option><option value="100" selected>100 most recent</option><option value="250">250 most recent</option></select></div>
+        <button id="fetchBtn" type="submit" class="primary">Search live FDA data <span>→</span></button>
+      </form>
+      <div class="samples"><div class="small-heading">TRY A NARRATIVE STARTING POINT</div><div class="chips"><button class="chip preset" data-keyword="pouch">Pouch</button><button class="chip preset" data-keyword="label">Label</button><button class="chip preset" data-keyword="shipping">Shipping</button></div></div>
+      <details class="advanced"><summary>Inspect API query</summary><div class="query-preview" id="queryPreview">Enter a device code, manufacturer or narrative phrase.</div><button id="copyQuery" type="button" class="link-button">Copy API URL</button></details>
+      <div class="aside-divider"></div>
+      <div class="small-heading">LOCAL / REPRODUCIBLE DATA</div>
+      <label for="fileImport" class="secondary file-label">Import openFDA JSON file</label><input id="fileImport" type="file" accept=".json,application/json" hidden>
+      <p class="helper">Import an openFDA response with a <code>results</code> array. Files stay in this browser session. No uploads.</p>
+      <div class="small-heading" style="margin-top:22px">COVERAGE & LIMITS</div>
+      <p class="helper">Live search retrieves a bounded, recent sample from the cohort. The local theme counts describe <strong>only that sample</strong>. No denominator of device usage is available.</p>
+    </aside>
+    <section class="results">
+      <div class="section-bar"><div><p class="eyebrow">02 / ANALYZE EVIDENCE</p><h2>Engineering evidence map</h2></div><div class="actions"><button id="downloadCsv" class="secondary">Export sample CSV</button><button id="downloadBrief" class="secondary">Export brief (.md)</button></div></div>
+      <div class="stats-grid">
+        <div class="stat panel"><span>Reports in loaded sample</span><strong id="statReports">—</strong><small>One per MDR report key*</small></div>
+        <div class="stat panel"><span>Narratives available</span><strong id="statNarratives">—</strong><small>Within loaded sample</small></div>
+        <div class="stat panel"><span>Reports with pathway terms</span><strong id="statMatched">—</strong><small>Not verified defects</small></div>
+        <div class="stat panel"><span>Qualification flags</span><strong id="statCaution">—</strong><small>Potential negation / ambiguity</small></div>
+      </div>
+      <div class="panel lens-panel"><div class="panel-heading"><span>Engineering lens</span><span class="micro">Match against narrative phrases; non-exclusive categories</span></div><div class="lens-options" id="lensOptions"><label><input type="radio" name="lens" value="all" checked> All pathways</label><label><input type="radio" name="lens" value="packaging"> Packaging & presentation</label><label><input type="radio" name="lens" value="traceability"> Labeling</label><label><input type="radio" name="lens" value="storage"> Storage & distribution</label></div></div>
+      <div class="panel chart-panel"><div class="panel-heading"><span>03 / Candidate pathways</span><span class="micro">Report counts · loaded sample only</span></div><div id="pathwayChart" class="pathway-chart"></div><p class="chart-note">A single narrative may map to more than one pathway. Bar lengths are not normalized to product exposure or sales.</p></div>
+      <div class="section-bar record-title"><div><p class="eyebrow">04 / VERIFY SOURCE LANGUAGE</p><h2>Report-level evidence</h2></div><label class="sort-label"><input id="matchedOnly" type="checkbox" checked> Matched records only</label></div>
+      <div class="panel report-panel"><div id="reportList" class="report-list" aria-live="polite"></div></div>
+      <div class="panel method-panel"><div class="panel-heading"><span>How V0.1 works</span></div><div class="method-grid"><div><strong>Transparent dictionary</strong><p>Curated packaging-related phrases; no undisclosed AI classifier, device attribution, or causal risk score.</p></div><div><strong>Qualification required</strong><p>Basic negation checks identify some contradictory language. Review every candidate narrative manually.</p></div><div><strong>Traceable export</strong><p>Markdown brief records cohort definition, candidate pathway, evidence snippets, limitations, and source links.</p></div></div></div>
+    </section>
+  </div>
+  <footer><p>Independent educational prototype · Not an FDA product, clinical decision tool, regulatory determination, or validated postmarket surveillance system.</p><p>Data: <a href="https://open.fda.gov/apis/device/event/">openFDA MAUDE API</a> · <a href="https://www.fda.gov/medical-devices/medical-device-reporting-mdr-how-report-medical-device-problems/mdr-data-files">FDA MDR source files</a> · Version 0.1.0</p></footer>
+</main>
+<div id="toast" class="toast" role="alert" hidden></div>
+</body>
+</html>
