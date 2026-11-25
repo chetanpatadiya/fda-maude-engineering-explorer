@@ -31,8 +31,21 @@
       <div class="button-pair"><button id="demoBtn" class="choice selected" type="button">Synthetic demo</button><button id="liveBtn" class="choice" type="button">Search live FDA</button></div>
       <div class="aside-divider"></div>
       <form id="searchForm">
-        <div class="field"><label for="from">FDA date received — from</label><input id="from" type="date" required></div>
-        <div class="field"><label for="to">Through</label><input id="to" type="date" required></div>
+        <div class="field">
+  <label for="from">
+    FDA date received — from
+    <span class="muted">optional</span>
+  </label>
+  <input id="from" type="date">
+</div>
+
+<div class="field">
+  <label for="to">
+    Through
+    <span class="muted">optional</span>
+  </label>
+  <input id="to" type="date">
+</div>
         <div class="field"><label for="productCode">FDA product code <span class="muted">optional</span></label><input id="productCode" maxlength="3" placeholder="Three-letter code" autocomplete="off"></div>
         <div class="field"><label for="manufacturer">Manufacturer <span class="muted">optional</span></label><input id="manufacturer" maxlength="90" placeholder="Name in device record" autocomplete="off"></div>
         <div class="field"><label for="keyword">Narrative phrase <span class="muted">optional</span></label><input id="keyword" maxlength="90" placeholder="e.g. pouch, sterile, label" autocomplete="off"></div>
