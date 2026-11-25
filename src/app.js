@@ -4,7 +4,20 @@ import {buildQuery,fetchReports} from './api.js';
 import {summarize,escapeHtml,toCsv,generateBrief,fdaRecordUrl} from './analysis.js';
 
 const $ = id=>document.getElementById(id);
-const state={records:DEMO_RECORDS,source:'demo',total:null,url:null,query:{},lens:'all',showMatchedOnly:true,summary:null,busy:false};
+
+const state = {
+  records: DEMO_RECORDS,
+  source: 'demo',
+  total: null,
+  url: null,
+  query: {},
+  lens: 'all',
+  searchMode: 'medical',
+  showMatchedOnly: false,
+  summary: null,
+  busy: false
+};
+
 let toastHandle;
 
 function criteria(){return {
@@ -28,6 +41,39 @@ function setSourceSelection(){
   $('demoBtn').classList.toggle('selected',state.source==='demo');
   $('liveBtn').classList.toggle('selected',state.source==='live');
 }
+
+function setSearchMode(mode) {
+  state.searchMode = mode;
+
+  const isMedical = mode === 'medical';
+
+  $('medicalModeBtn').classList.toggle(
+    'selected', isMedical
+  );
+
+  $('packagingModeBtn').classList.toggle(
+    'selected', !isMedical
+  );
+
+  $('medicalModeBtn').setAttribute(
+    'aria-pressed', String(isMedical)
+  );
+
+  $('packagingModeBtn').setAttribute(
+    'aria-pressed', String(!isMedical)
+  );
+
+  $('modeDescription').textContent = isMedical
+    ? 'Explore all retrieved medical-device event reports.'
+    : 'Screen retrieved reports for packaging, labeling and distribution pathways.';
+
+  state.showMatchedOnly = !isMedical;
+
+  $('matchedOnly').checked = !isMedical;
+
+  render();
+}
+
 function render(){
   setSourceSelection();
   const lens=LENSES.find(x=>x.id===state.lens)??LENSES[0];
@@ -102,6 +148,14 @@ async function importJson(file){
   }catch(e){notify(`Cannot import JSON: ${e.message}`,true);}finally{$('fileImport').value='';}
 }
 
+$('medicalModeBtn').addEventListener('click', () => {
+  setSearchMode('medical');
+});
+
+$('packagingModeBtn').addEventListener('click', () => {
+  setSearchMode('packaging');
+});
+
 $('searchForm').addEventListener('submit',e=>{e.preventDefault();searchLive();});
 $('demoBtn').addEventListener('click',loadDemo);
 $('liveBtn').addEventListener('click',()=>{if(!criteria().productCode&&!criteria().manufacturer&&!criteria().keyword){$('keyword').value='pouch';updateQuery();}searchLive();});
@@ -120,4 +174,8 @@ $('copyQuery').addEventListener('click',async()=>{
   try{await navigator.clipboard.writeText(query);notify('FDA API query URL copied.');}
   catch{notify('Clipboard unavailable here. Select the URL in the preview and copy it.',true);}
 });
-state.query={data:'synthetic demo'};updateQuery();render();
+
+state.query = {data: 'synthetic demo'};
+updateQuery();
+setSearchMode('medical');
+
