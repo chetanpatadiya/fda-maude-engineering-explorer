@@ -74,10 +74,37 @@ function setSearchMode(mode) {
   render();
 }
 
+
 function render(){
   setSourceSelection();
-  const lens=LENSES.find(x=>x.id===state.lens)??LENSES[0];
-  const s=summarize(state.records,lens.pathways);state.summary=s;
+
+  const isMedical = state.searchMode === 'medical';
+
+  const lens = LENSES.find(
+    x => x.id === state.lens
+  ) ?? LENSES[0];
+
+  const activePathways = isMedical
+    ? []
+    : lens.pathways;
+
+  const s = summarize(
+    state.records,
+    activePathways
+  );
+
+  state.summary = s;
+
+document.querySelector('.lens-panel').hidden = isMedical;
+
+document.querySelector('.chart-panel').hidden = isMedical;
+
+$('statMatched').closest('.stat').hidden = isMedical;
+
+$('statCaution').closest('.stat').hidden = isMedical;
+
+$('matchedOnly').closest('label').hidden = isMedical;
+
   $('statReports').textContent=s.loaded.toLocaleString();
   $('statNarratives').textContent=s.narrativeAvailable.toLocaleString();
   $('statMatched').textContent=s.matched.length.toLocaleString();
@@ -88,7 +115,13 @@ function render(){
     <div class="chart-track" aria-label="${escapeHtml(x.pathway.name)}: ${x.count} reports"><div class="chart-fill" style="width:${(100*x.count/max).toFixed(1)}%"></div></div>
     <div class="chart-number">${x.count}</div>
   </div>`).join('')||'<div class="no-data">No pathways selected.</div>';
-  const items=state.showMatchedOnly?s.matched:s.rows;
+  
+const items = isMedical
+  ? s.rows
+  : state.showMatchedOnly
+    ? s.matched
+    : s.rows;
+
   $('reportList').innerHTML=items.length?items.slice(0,250).map(r=>{
     const caution=r.classified.some(c=>c.cautioned);
     const evidence=r.classified.flatMap(c=>c.matches);
@@ -99,11 +132,23 @@ function render(){
       <div class="report-meta">${escapeHtml(r.date)} · ${escapeHtml(r.generic)} · ${escapeHtml(r.manufacturer)} · Product code ${escapeHtml(r.productCode)}</div></div><span class="event-tag">${escapeHtml(r.eventType)}</span></div>
       <div class="theme-badges">${r.classified.map(c=>`<span class="theme-badge">${escapeHtml(c.pathway.name)}</span>`).join('')}
       ${caution?'<span class="theme-badge warning">Qualification flag: read full narrative</span>':''}
-      ${!r.classified.length?'<span class="theme-badge warning">No dictionary match</span>':''}</div>
+      
+${!isMedical && !r.classified.length
+  ? '<span class="theme-badge warning">No dictionary match</span>'
+  : ''}
+</div>
       <blockquote class="excerpt">${escapeHtml(snippet)}${r.narrative.length>snippet.length?' …':''}</blockquote>
       <div class="report-footer"><small>${r.source==='demo'?'FICTIONAL RECORD — for interface demonstration':r.source==='import'?'Locally imported data — verify provenance':'Public openFDA response · sample only'}${evidence.length?' · '+evidence.length+' lexical mention(s)':''}</small>${link?`<a target="_blank" rel="noopener noreferrer" href="${escapeHtml(link)}">Inspect source JSON ↗</a>`:''}</div>
       </article>`;
-  }).join(''):`<div class="no-data">${s.loaded?'No pathways matched this cohort and lens. Try another lens or disable “Matched records only.”':'No reports returned. Narrow or revise your query.'}</div>`;
+  
+}).join('') : `<div class="no-data">${
+  !s.loaded
+    ? 'No reports returned. Revise your query.'
+    : isMedical
+      ? 'No report evidence available.'
+      : 'No pathways matched this cohort and lens. Try another lens or disable “Matched records only.”'
+}</div>`;
+
 }
 function download(name,content,type){
   const blob=new Blob([content],{type});
