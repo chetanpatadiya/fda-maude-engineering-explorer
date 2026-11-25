@@ -26,7 +26,38 @@
   <div class="notice" id="sourceNotice" role="status"><span class="notice-dot"></span><div><strong>Synthetic demonstration loaded</strong><span> All eight example narratives are fictional. Select “Search live FDA” to access public openFDA records.</span></div></div>
   <div class="workspace">
     <aside class="filters panel">
-      <div class="panel-heading"><span>01 / Define evidence cohort</span></div>
+      <div class="panel-heading">
+        <span>01 / Define evidence cohort</span>
+      </div>
+
+       <!-- NEW: Investigation mode -->
+      
+<label class="field-title">Investigation mode</label>
+
+<div class="button-pair">
+  <button id="medicalModeBtn"
+          class="choice selected"
+          type="button"
+          aria-pressed="true">
+    Medical Device Search
+  </button>
+
+  <button id="packagingModeBtn"
+          class="choice"
+          type="button"
+          aria-pressed="false">
+    Packaging Search
+  </button>
+</div>
+
+<p class="helper" id="modeDescription">
+  Explore all retrieved medical-device event reports.
+</p>
+
+<div class="aside-divider"></div>
+
+       <!-- EXISTING: Data source -->
+
       <label class="field-title">Data source</label>
       <div class="button-pair"><button id="demoBtn" class="choice selected" type="button">Synthetic demo</button><button id="liveBtn" class="choice" type="button">Search live FDA</button></div>
       <div class="aside-divider"></div>
